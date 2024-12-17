@@ -17,6 +17,7 @@ return {
     { "<leader>br", "<Cmd>BufferLineCloseRight<CR>", desc = "Delete Buffers to the Right" },
     { "<leader>bl", "<Cmd>BufferLineCloseLeft<CR>", desc = "Delete Buffers to the Left" },
     { "<S-h>", "<Cmd>BufferLineCyclePrev<CR>", desc = "Prev Buffer" },
+    { "<leader>bd", function() Snacks.bufdelete() end, desc = "Delete Current Buffer" },
     { "<S-l>", "<Cmd>BufferLineCycleNext<CR>", desc = "Next Buffer" },
     { "[b", "<Cmd>BufferLineCyclePrev<CR>", desc = "Prev Buffer" },
     { "]b", "<Cmd>BufferLineCycleNext<CR>", desc = "Next Buffer" },
@@ -25,13 +26,10 @@ return {
   },
   opts = {
     options = {
-      close_command = function(bufnr)
-        require("bufdelete").bufdelete(bufnr, true)
-      end,
-      right_mouse_command = function(bufnr)
-        require("bufdelete").bufdelete(bufnr, true)
-      end,
-      diagnostics = "nvim_lsp",
+      -- stylua: ignore
+      close_command = function(n) Snacks.bufdelete(n) end,
+      -- stylua: ignore
+      right_mouse_command = function(n) Snacks.bufdelete(n) end, diagnostics = "nvim_lsp",
       always_show_bufferline = false,
       diagnostics_indicator = function(_, _, diagnostics)
         local icons = { Error = "", Warn = "", Info = "", Hint = "" }
