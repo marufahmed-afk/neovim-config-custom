@@ -13,6 +13,22 @@ return {
     },
   },
   config = function()
-    vim.cmd.colorscheme "catppuccin"
+    require("catppuccin").setup({
+      flavor = "mocha", -- Optional: Specify the default flavor
+      color_overrides = {
+        all = {
+          text = "#ffffff",
+        },
+        latte = {},
+        frappe = {},
+        macchiato = {},
+        mocha = {
+          base = "#000000",
+          mantle = "#000000",
+          crust = "#000000",
+        },
+      },
+    })
+    vim.cmd.colorscheme "catppuccin-mocha"
   end
 }
