@@ -1,6 +1,6 @@
 return {
   {
-   "williamboman/mason.nvim",
+    "williamboman/mason.nvim",
     config = function()
       require("mason").setup()
     end
@@ -32,7 +32,9 @@ return {
     config = function()
       local lspconfig = require("lspconfig")
       lspconfig.lua_ls.setup({})
-      lspconfig.ts_ls.setup({})
+      lspconfig.ts_ls.setup({
+        filetypes = { "typescript", "typescriptreact", "typescript.tsx" }
+      })
       lspconfig.rust_analyzer.setup({})
       lspconfig.tailwindcss.setup({})
 
