@@ -33,7 +33,25 @@ return {
       local lspconfig = require("lspconfig")
       lspconfig.lua_ls.setup({})
       lspconfig.ts_ls.setup({
-        filetypes = { "typescript", "typescriptreact", "typescript.tsx" }
+        filetypes = { "typescript", "typescriptreact", "typescript.tsx", "javascript", "javascriptreact", "javascript.jsx" },
+        init_options = {
+          preferences = {
+            disableSuggestions = true,
+          },
+        },
+        settings = {
+          javascript = {
+            validate = {
+              enable = true,
+              semanticValidation = false,
+            },
+          },
+          typescript = {
+            validate = {
+              enable = true,
+            },
+          },
+        },
       })
       lspconfig.rust_analyzer.setup({})
       lspconfig.tailwindcss.setup({})
@@ -41,6 +59,7 @@ return {
       vim.keymap.set('n', '<leader>h', vim.lsp.buf.hover, {})
       vim.keymap.set('n', 'gd', vim.lsp.buf.definition, {})
       vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, {})
+      vim.keymap.set('n', '<leader>cd', vim.diagnostic.open_float, { noremap = true, silent = true })
     end
   }
 }
