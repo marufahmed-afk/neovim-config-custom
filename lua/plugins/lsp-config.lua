@@ -1,61 +1,99 @@
 return {
   {
     "williamboman/mason.nvim",
+    lazy = false,
+    build = ":MasonUpdate",
     config = function()
-      require("mason").setup()
-    end
-  },
-  {
-    "williamboman/mason-lspconfig.nvim",
-    config = function()
-      require("mason-lspconfig").setup({
-        ensure_installed = { "lua_ls", "ts_ls", "rust_analyzer", "tailwindcss" }
+      require("mason").setup({
+        ui = {
+          check_outdated_packages_on_open = true,
+          border = "rounded",
+        },
+        install_root_dir = vim.fn.stdpath("data") .. "/mason",
       })
-    end
-  },
-  {
-    "WhoIsSethDaniel/mason-tool-installer.nvim",
-    config = function()
-      require("mason-tool-installer").setup({
-        ensure_installed = {
-          "prettier",
-          "isort", -- python formatter
-          "black", -- python formatter
-          "pylint",
-          "eslint_d",
-        }
-      })
+
+      -- Install tools directly through Mason
+      local registry = require("mason-registry")
+      local ensure_installed = {
+        -- LSP
+        "lua-language-server",
+        "typescript-language-server",
+        "rust-analyzer",
+        "tailwindcss-language-server",
+        "pyright",
+        -- Formatters & Linters
+        "prettier",
+        "isort",
+        "black",
+        "pylint",
+        "eslint_d"
+      }
+
+      -- Ensure Mason registry is ready
+      registry.refresh(function()
+        for _, tool in ipairs(ensure_installed) do
+          local p = registry.get_package(tool)
+          if not p:is_installed() then
+            p:install()
+          end
+        end
+      end)
+
+      -- Ensure executables are in PATH
+      vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin:" .. vim.env.PATH
     end
   },
   {
     "neovim/nvim-lspconfig",
+    lazy = false,
+    dependencies = {
+      "williamboman/mason.nvim",
+    },
     config = function()
       local lspconfig = require("lspconfig")
-      lspconfig.lua_ls.setup({})
-      lspconfig.ts_ls.setup({
-        filetypes = { "typescript", "typescriptreact", "typescript.tsx", "javascript", "javascriptreact", "javascript.jsx" },
-        init_options = {
-          preferences = {
-            disableSuggestions = true,
-          },
+      local mason_path = vim.fn.stdpath("data") .. "/mason"
+      -- Server specific settings
+      local servers = {
+        lua_ls = {
+          cmd = { mason_path .. "/bin/lua-language-server" }
         },
-        settings = {
-          javascript = {
-            validate = {
-              enable = true,
-              semanticValidation = false,
+        pyright = {},
+        ts_ls = {
+          cmd = { mason_path .. "/bin/typescript-language-server", "--stdio" },
+          filetypes = { "typescript", "typescriptreact", "typescript.tsx", "javascript", "javascriptreact", "javascript.jsx" },
+          init_options = {
+            preferences = {
+              disableSuggestions = true,
             },
           },
-          typescript = {
-            validate = {
-              enable = true,
+          settings = {
+            javascript = {
+              validate = {
+                enable = false,
+                semanticValidation = false,
+              },
+            },
+            typescript = {
+              validate = {
+                enable = true,
+              },
             },
           },
         },
-      })
-      lspconfig.rust_analyzer.setup({})
-      lspconfig.tailwindcss.setup({})
+        rust_analyzer = {
+          cmd = { mason_path .. "/bin/rust-analyzer" }
+        },
+        tailwindcss = {
+          cmd = { mason_path .. "/bin/tailwindcss-language-server", "--stdio" }
+        },
+      }
 
+      -- Setup each server
+      for server_name, server_settings in pairs(servers) do
+        lspconfig[server_name].setup(server_settings)
+      end
+
+      -- Keymaps
       vim.keymap.set('n', '<leader>h', vim.lsp.buf.hover, {})
       vim.keymap.set('n', 'gd', vim.lsp.buf.definition, {})
       vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, {})
