@@ -50,7 +50,6 @@ return {
       "williamboman/mason.nvim",
     },
     config = function()
-      local lspconfig = require("lspconfig")
       local mason_path = vim.fn.stdpath("data") .. "/mason"
       -- Server specific settings
       local servers = {
@@ -88,9 +87,10 @@ return {
         },
       }
 
-      -- Setup each server
+      -- Setup each server (Neovim 0.11+ native LSP API)
       for server_name, server_settings in pairs(servers) do
-        lspconfig[server_name].setup(server_settings)
+        vim.lsp.config(server_name, server_settings)
+        vim.lsp.enable(server_name)
       end
 
       -- Keymaps
